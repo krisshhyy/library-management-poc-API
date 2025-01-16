@@ -1,0 +1,6 @@
+@NandiAPI_HostAddress = http://localhost:5155
+
+GET {{NandiAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
