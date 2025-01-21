@@ -8,13 +8,15 @@ namespace NandiAPI.Controllers
     [ApiController]
     public class LibraryController : ControllerBase
     {
-        public LibraryController(Context context, EmailService emailService) {
+        public LibraryController(Context context, EmailService emailService, JwtService jwtService) {
             Context = context;
             EmailService = emailService;
+            JwtService = jwtService;
         }
 
         public Context Context { get; }
         public EmailService EmailService { get; }
+        public JwtService JwtService { get; }
 
         [HttpPost("Register")]
         public ActionResult Register(User user)
@@ -46,6 +48,20 @@ namespace NandiAPI.Controllers
             return Ok(@"Thank you for registering. 
                         Your account has been sent for aprooval. 
                         Once it is aprooved, you will get an email.");
+        }
+
+        [HttpGet("Login")]
+        public ActionResult Login(string email, string password)
+        {
+            if(Context.Users.Any(u => u.Email.Equals(email)  && u.Password.Equals(password)))
+            {
+                var user = Context.Users.Single(user => user.Email.Equals(email) && user.Password.Equals(password));
+
+                if (user.AccountStatus == AccountStatus.UNAPPROVED) return Ok("Unapproved");
+
+                return Ok(JwtService.GenerateToken(user));
+            }
+            return Ok("Not Found !");
         }
     }
 }
