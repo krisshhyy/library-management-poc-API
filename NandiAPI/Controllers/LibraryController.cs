@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NandiAPI.Entities;
 
 namespace NandiAPI.Controllers
@@ -62,6 +64,17 @@ namespace NandiAPI.Controllers
                 return Ok(JwtService.GenerateToken(user));
             }
             return Ok("Not Found !");
+        }
+
+        [Authorize]
+        [HttpGet("GetBooks")]
+        public ActionResult GetBooks()
+        {
+            if (Context.Books.Any())
+            {
+                return Ok(Context.Books.Include(b=>b.BookCategory).ToList());
+            }
+            return NotFound();
         }
     }
 }
